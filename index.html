@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Interactive LTE Network Attach Procedure Simulator - Demonstrates UE authentication, session creation, and location tracking in an LTE network.">
+  <title>LTE Network Attach Simulator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="index.css">
+</head>
+<body>
+  <div class="app">
+    <!-- Header -->
+    <header class="header">
+      <div class="header-left">
+        <div class="logo">
+          <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+            <circle cx="16" cy="16" r="14" stroke="url(#logoGrad)" stroke-width="2.5"/>
+            <path d="M16 6 L16 26 M10 10 L16 16 L22 10 M10 16 L16 22 L22 16" stroke="url(#logoGrad)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <defs><linearGradient id="logoGrad" x1="0" y1="0" x2="32" y2="32"><stop stop-color="#60a5fa"/><stop offset="1" stop-color="#a78bfa"/></linearGradient></defs>
+          </svg>
+        </div>
+        <div>
+          <h1 class="header-title">LTE Attach Simulator</h1>
+          <p class="header-subtitle">4G/LTE Network Attach Procedure Demonstration</p>
+        </div>
+      </div>
+      <div class="header-right">
+        <span class="badge" id="networkMode">LTE / 4G</span>
+        <span class="badge badge-outline" id="simClock">00:00:00</span>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main">
+      <!-- Left: Network Topology -->
+      <section class="topology-panel" id="topologyPanel">
+        <div class="panel-header">
+          <h2>Network Topology</h2>
+          <div class="tower-indicator">
+            <span class="dot dot-green"></span>
+            <span id="currentTower">No Connection</span>
+          </div>
+        </div>
+        <div class="topology-canvas" id="topologyCanvas">
+          <!-- SVG connections drawn by JS -->
+          <svg class="topology-svg" id="topologySvg"></svg>
+
+          <!-- Network Nodes -->
+          <div class="node" id="node-ue" data-label="UE">
+            <div class="node-icon">
+              <svg viewBox="0 0 40 40"><rect x="10" y="4" width="20" height="32" rx="3" stroke="currentColor" stroke-width="2" fill="none"/><circle cx="20" cy="30" r="2" fill="currentColor"/><line x1="16" y1="8" x2="24" y2="8" stroke="currentColor" stroke-width="1.5"/></svg>
+            </div>
+            <span class="node-name">UE</span>
+            <span class="node-sub">User Equipment</span>
+          </div>
+
+          <div class="node" id="node-enodeb" data-label="eNodeB">
+            <div class="node-icon">
+              <svg viewBox="0 0 40 40"><polygon points="20,2 36,38 4,38" stroke="currentColor" stroke-width="2" fill="none"/><line x1="20" y1="14" x2="20" y2="28" stroke="currentColor" stroke-width="2"/><circle cx="20" cy="11" r="2" fill="currentColor"/></svg>
+            </div>
+            <span class="node-name">eNodeB</span>
+            <span class="node-sub">Cell Tower</span>
+          </div>
+
+          <div class="node" id="node-mme" data-label="MME">
+            <div class="node-icon">
+              <svg viewBox="0 0 40 40"><rect x="4" y="8" width="32" height="24" rx="3" stroke="currentColor" stroke-width="2" fill="none"/><line x1="4" y1="16" x2="36" y2="16" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/><circle cx="17" cy="12" r="1.5" fill="currentColor"/><line x1="10" y1="22" x2="30" y2="22" stroke="currentColor" stroke-width="1.5"/><line x1="10" y1="26" x2="24" y2="26" stroke="currentColor" stroke-width="1.5"/></svg>
+            </div>
+            <span class="node-name">MME</span>
+            <span class="node-sub">Mobility Mgmt</span>
+          </div>
+
+          <div class="node" id="node-hss" data-label="HSS">
+            <div class="node-icon">
+              <svg viewBox="0 0 40 40"><ellipse cx="20" cy="12" rx="14" ry="5" stroke="currentColor" stroke-width="2" fill="none"/><path d="M6 12 v16 a14 5 0 0 0 28 0 v-16" stroke="currentColor" stroke-width="2" fill="none"/><ellipse cx="20" cy="20" rx="14" ry="5" stroke="currentColor" stroke-width="1" fill="none" opacity="0.4"/></svg>
+            </div>
+            <span class="node-name">HSS</span>
+            <span class="node-sub">Subscriber DB</span>
+          </div>
+
+          <div class="node" id="node-sgw" data-label="SGW">
+            <div class="node-icon">
+              <svg viewBox="0 0 40 40"><rect x="6" y="10" width="28" height="20" rx="3" stroke="currentColor" stroke-width="2" fill="none"/><line x1="6" y1="17" x2="34" y2="17" stroke="currentColor" stroke-width="1.5"/><polygon points="15,22 25,22 23,27 17,27" stroke="currentColor" stroke-width="1.5" fill="none"/></svg>
+            </div>
+            <span class="node-name">SGW</span>
+            <span class="node-sub">Serving GW</span>
+          </div>
+
+          <div class="node" id="node-pgw" data-label="PGW">
+            <div class="node-icon">
+              <svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="14" stroke="currentColor" stroke-width="2" fill="none"/><ellipse cx="20" cy="20" rx="14" ry="6" stroke="currentColor" stroke-width="1.5" fill="none"/><line x1="20" y1="6" x2="20" y2="34" stroke="currentColor" stroke-width="1.5"/></svg>
+            </div>
+            <span class="node-name">PGW</span>
+            <span class="node-sub">Packet GW</span>
+          </div>
+
+          <!-- Message Arrow (animated) -->
+          <div class="message-arrow" id="messageArrow">
+            <span class="message-text" id="messageText"></span>
+          </div>
+        </div>
+
+        <!-- Tower Map -->
+        <div class="tower-map" id="towerMap">
+          <h3>Cell Tower Coverage Map</h3>
+          <div class="map-canvas" id="mapCanvas">
+            <svg class="map-svg" id="mapSvg"></svg>
+            <div class="tower-dot" id="tower-a" data-tower="Tower A">A</div>
+            <div class="tower-dot" id="tower-b" data-tower="Tower B">B</div>
+            <div class="tower-dot" id="tower-c" data-tower="Tower C">C</div>
+            <div class="device-dot" id="deviceDot">
+              <svg viewBox="0 0 20 20" width="16" height="16"><rect x="5" y="2" width="10" height="16" rx="2" stroke="currentColor" stroke-width="1.5" fill="none"/></svg>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Right: Controls + Logs -->
+      <aside class="side-panel">
+        <!-- Device Info -->
+        <div class="card device-card" id="deviceCard">
+          <div class="card-header">
+            <h3>Device Information</h3>
+            <button class="btn btn-sm btn-ghost" id="btnRandomDevice" title="Generate Random Device">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 4v6h6M23 20v-6h-6"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/></svg>
+              Random
+            </button>
+          </div>
+          <div class="device-info">
+            <div class="info-row"><span class="info-label">IMSI</span><span class="info-value" id="infoIMSI">—</span></div>
+            <div class="info-row"><span class="info-label">IMEI</span><span class="info-value" id="infoIMEI">—</span></div>
+            <div class="info-row"><span class="info-label">Status</span><span class="info-value status-badge" id="infoStatus">Detached</span></div>
+            <div class="info-row"><span class="info-label">IP Address</span><span class="info-value" id="infoIP">—</span></div>
+            <div class="info-row"><span class="info-label">Cell Tower</span><span class="info-value" id="infoTower">—</span></div>
+            <div class="info-row"><span class="info-label">Coordinates</span><span class="info-value" id="infoCoords">—</span></div>
+          </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="card controls-card">
+          <div class="card-header"><h3>Simulation Controls</h3></div>
+          <div class="controls-grid">
+            <button class="btn btn-primary" id="btnAttach">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              Start Attach
+            </button>
+            <button class="btn btn-secondary" id="btnMove">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="10" r="3"/><path d="M12 21.7C17.3 17 20 13 20 10a8 8 0 1 0-16 0c0 3 2.7 7 8 11.7z"/></svg>
+              Move Device
+            </button>
+            <button class="btn btn-outline" id="btnReset">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+              Reset
+            </button>
+            <button class="btn btn-outline" id="btnLogs">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+              Show Logs
+            </button>
+          </div>
+          <div class="failure-controls">
+            <h4>Failure Scenarios</h4>
+            <div class="failure-btns">
+              <button class="btn btn-danger btn-sm" id="btnInvalidSIM">Invalid SIM</button>
+              <button class="btn btn-danger btn-sm" id="btnAuthFail">Auth Failure</button>
+              <button class="btn btn-danger btn-sm" id="btnTowerDown">Tower Down</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Logs -->
+        <div class="card logs-card" id="logsCard">
+          <div class="card-header">
+            <h3>Event Logs</h3>
+            <button class="btn btn-sm btn-ghost" id="btnClearLogs">Clear</button>
+          </div>
+          <div class="logs-container" id="logsContainer">
+            <div class="log-placeholder">Click <strong>Start Attach</strong> to begin simulation...</div>
+          </div>
+        </div>
+      </aside>
+    </main>
+
+    <!-- Status Bar -->
+    <footer class="status-bar">
+      <div class="status-left">
+        <span class="status-dot" id="statusDot"></span>
+        <span id="statusText">Ready — Generate a device to begin</span>
+      </div>
+      <div class="status-right">
+        <span id="statusIP">IP: —</span>
+        <span class="status-sep">|</span>
+        <span id="statusLocation">Location: —</span>
+        <span class="status-sep">|</span>
+        <span id="statusLatency">Latency: —</span>
+      </div>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,1567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LTE Network Architecture — Presentation</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    /* ===== RESET & BASE ===== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #06080f;
+      --bg-card: #111827;
+      --bg-elevated: #1a2035;
+      --text: #e8ecf4;
+      --text-dim: #8b95b0;
+      --text-muted: #4b5570;
+      --blue: #3b82f6;
+      --cyan: #22d3ee;
+      --purple: #a78bfa;
+      --green: #34d399;
+      --amber: #fbbf24;
+      --red: #f87171;
+      --pink: #f472b6;
+      --border: rgba(255,255,255,0.06);
+      --font: 'Inter', -apple-system, sans-serif;
+      --mono: 'JetBrains Mono', monospace;
+    }
+
+    html, body {
+      height: 100%;
+      overflow: hidden;
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    /* ===== PRESENTATION CONTAINER ===== */
+    .presentation {
+      width: 100vw;
+      height: 100vh;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* ===== SLIDE ===== */
+    .slide {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 60px 80px;
+      opacity: 0;
+      transform: translateX(60px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+      pointer-events: none;
+      overflow-y: auto;
+    }
+
+    .slide.active {
+      opacity: 1;
+      transform: translateX(0);
+      pointer-events: auto;
+      z-index: 10;
+    }
+
+    .slide.exit-left {
+      opacity: 0;
+      transform: translateX(-60px);
+    }
+
+    /* ===== SLIDE BACKGROUNDS ===== */
+    .slide::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .slide > * { position: relative; z-index: 1; }
+
+    .slide.bg-glow-blue::before {
+      background: radial-gradient(ellipse at 30% 40%, rgba(59,130,246,0.08) 0%, transparent 60%),
+                  radial-gradient(ellipse at 70% 70%, rgba(167,139,250,0.06) 0%, transparent 50%);
+    }
+    .slide.bg-glow-cyan::before {
+      background: radial-gradient(ellipse at 50% 30%, rgba(34,211,238,0.07) 0%, transparent 55%),
+                  radial-gradient(ellipse at 80% 80%, rgba(59,130,246,0.05) 0%, transparent 50%);
+    }
+    .slide.bg-glow-purple::before {
+      background: radial-gradient(ellipse at 40% 50%, rgba(167,139,250,0.08) 0%, transparent 55%),
+                  radial-gradient(ellipse at 70% 20%, rgba(244,114,182,0.05) 0%, transparent 50%);
+    }
+    .slide.bg-glow-green::before {
+      background: radial-gradient(ellipse at 50% 50%, rgba(52,211,153,0.07) 0%, transparent 55%),
+                  radial-gradient(ellipse at 20% 80%, rgba(34,211,238,0.04) 0%, transparent 50%);
+    }
+    .slide.bg-glow-amber::before {
+      background: radial-gradient(ellipse at 60% 40%, rgba(251,191,36,0.06) 0%, transparent 55%),
+                  radial-gradient(ellipse at 30% 70%, rgba(248,113,113,0.04) 0%, transparent 50%);
+    }
+
+    /* Grid overlay for some slides */
+    .slide.bg-grid::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ===== TYPOGRAPHY ===== */
+    .slide-number {
+      position: absolute;
+      top: 28px;
+      left: 40px;
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      letter-spacing: 2px;
+    }
+
+    .kicker {
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      margin-bottom: 16px;
+    }
+
+    .kicker.blue { color: var(--blue); }
+    .kicker.cyan { color: var(--cyan); }
+    .kicker.purple { color: var(--purple); }
+    .kicker.green { color: var(--green); }
+    .kicker.amber { color: var(--amber); }
+    .kicker.red { color: var(--red); }
+    .kicker.pink { color: var(--pink); }
+
+    h1 {
+      font-size: 3.5rem;
+      font-weight: 900;
+      line-height: 1.1;
+      letter-spacing: -2px;
+      margin-bottom: 20px;
+      max-width: 900px;
+      text-align: center;
+    }
+
+    h1 .grad-blue {
+      background: linear-gradient(135deg, #60a5fa, #3b82f6);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    h1 .grad-cyan {
+      background: linear-gradient(135deg, #22d3ee, #06b6d4);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    h1 .grad-purple {
+      background: linear-gradient(135deg, #a78bfa, #8b5cf6);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    h1 .grad-green {
+      background: linear-gradient(135deg, #34d399, #10b981);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    h1 .grad-amber {
+      background: linear-gradient(135deg, #fbbf24, #f59e0b);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    h1 .grad-red {
+      background: linear-gradient(135deg, #f87171, #ef4444);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    h1 .grad-multi {
+      background: linear-gradient(135deg, #60a5fa, #a78bfa, #f472b6);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    h2 {
+      font-size: 2.2rem;
+      font-weight: 800;
+      line-height: 1.2;
+      letter-spacing: -1px;
+      margin-bottom: 12px;
+      text-align: center;
+    }
+
+    h3 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      font-size: 1.2rem;
+      color: var(--text-dim);
+      line-height: 1.7;
+      max-width: 700px;
+      text-align: center;
+      font-weight: 400;
+    }
+
+    .content { max-width: 1100px; width: 100%; }
+
+    /* ===== CARDS GRID ===== */
+    .cards {
+      display: grid;
+      gap: 16px;
+      margin-top: 32px;
+      width: 100%;
+      max-width: 1100px;
+    }
+
+    .cards.cols-2 { grid-template-columns: 1fr 1fr; }
+    .cards.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+    .cards.cols-4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px 24px;
+      transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+    }
+
+    .card.blue-card:hover { border-color: rgba(59,130,246,0.4); }
+    .card.cyan-card:hover { border-color: rgba(34,211,238,0.4); }
+    .card.purple-card:hover { border-color: rgba(167,139,250,0.4); }
+    .card.green-card:hover { border-color: rgba(52,211,153,0.4); }
+    .card.amber-card:hover { border-color: rgba(251,191,36,0.4); }
+    .card.red-card:hover { border-color: rgba(248,113,113,0.4); }
+
+    .card-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+      font-size: 1.5rem;
+    }
+
+    .card-icon.bg-blue { background: rgba(59,130,246,0.12); color: var(--blue); }
+    .card-icon.bg-cyan { background: rgba(34,211,238,0.12); color: var(--cyan); }
+    .card-icon.bg-purple { background: rgba(167,139,250,0.12); color: var(--purple); }
+    .card-icon.bg-green { background: rgba(52,211,153,0.12); color: var(--green); }
+    .card-icon.bg-amber { background: rgba(251,191,36,0.12); color: var(--amber); }
+    .card-icon.bg-red { background: rgba(248,113,113,0.12); color: var(--red); }
+    .card-icon.bg-pink { background: rgba(244,114,182,0.12); color: var(--pink); }
+
+    .card h3 { font-size: 1.1rem; margin-bottom: 8px; }
+    .card p { font-size: 0.88rem; color: var(--text-dim); line-height: 1.6; }
+
+    .card .tag {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 8px;
+      margin-top: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .tag.blue { background: rgba(59,130,246,0.12); color: var(--blue); }
+    .tag.cyan { background: rgba(34,211,238,0.12); color: var(--cyan); }
+    .tag.green { background: rgba(52,211,153,0.12); color: var(--green); }
+    .tag.purple { background: rgba(167,139,250,0.12); color: var(--purple); }
+    .tag.amber { background: rgba(251,191,36,0.12); color: var(--amber); }
+    .tag.red { background: rgba(248,113,113,0.12); color: var(--red); }
+
+    /* ===== DIAGRAM: Network Architecture ===== */
+    .arch-diagram {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin: 36px 0 20px;
+      flex-wrap: wrap;
+    }
+
+    .arch-node {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      padding: 16px 20px;
+      background: var(--bg-card);
+      border: 2px solid var(--border);
+      border-radius: 16px;
+      min-width: 100px;
+      transition: all 0.3s ease;
+    }
+
+    .arch-node:hover {
+      transform: scale(1.05);
+    }
+
+    .arch-node .icon {
+      font-size: 2rem;
+    }
+
+    .arch-node .label {
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+
+    .arch-node .desc {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      text-align: center;
+    }
+
+    .arch-node.blue { border-color: rgba(59,130,246,0.4); }
+    .arch-node.cyan { border-color: rgba(34,211,238,0.4); }
+    .arch-node.purple { border-color: rgba(167,139,250,0.4); }
+    .arch-node.green { border-color: rgba(52,211,153,0.4); }
+    .arch-node.amber { border-color: rgba(251,191,36,0.4); }
+    .arch-node.red { border-color: rgba(248,113,113,0.4); }
+
+    .arch-arrow {
+      font-size: 1.5rem;
+      color: var(--text-muted);
+      animation: arrowPulse 2s ease infinite;
+    }
+
+    @keyframes arrowPulse {
+      0%, 100% { opacity: 0.4; }
+      50% { opacity: 1; }
+    }
+
+    .arch-branch {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .arch-branch .arch-arrow-down {
+      font-size: 1.3rem;
+      color: var(--text-muted);
+      animation: arrowPulse 2s ease infinite;
+    }
+
+    /* ===== TIMELINE ===== */
+    .timeline {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      margin-top: 28px;
+      width: 100%;
+      max-width: 800px;
+    }
+
+    .timeline-step {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      position: relative;
+      padding-bottom: 18px;
+    }
+
+    .timeline-step:last-child { padding-bottom: 0; }
+
+    .timeline-marker {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 0.8rem;
+      flex-shrink: 0;
+      position: relative;
+      z-index: 2;
+    }
+
+    .timeline-step:not(:last-child)::before {
+      content: '';
+      position: absolute;
+      left: 17px;
+      top: 36px;
+      width: 2px;
+      height: calc(100% - 36px);
+      z-index: 1;
+    }
+
+    .timeline-marker.blue { background: rgba(59,130,246,0.2); color: var(--blue); }
+    .timeline-marker.cyan { background: rgba(34,211,238,0.2); color: var(--cyan); }
+    .timeline-marker.purple { background: rgba(167,139,250,0.2); color: var(--purple); }
+    .timeline-marker.green { background: rgba(52,211,153,0.2); color: var(--green); }
+    .timeline-marker.amber { background: rgba(251,191,36,0.2); color: var(--amber); }
+    .timeline-marker.red { background: rgba(248,113,113,0.2); color: var(--red); }
+
+    .timeline-step:not(:last-child)::before { background: var(--border); }
+
+    .timeline-content h4 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin-bottom: 2px;
+    }
+
+    .timeline-content p {
+      font-size: 0.82rem;
+      color: var(--text-dim);
+      line-height: 1.5;
+    }
+
+    .timeline-content .msg {
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      color: var(--cyan);
+      margin-top: 4px;
+    }
+
+    /* ===== TWO COLUMN LAYOUT ===== */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      margin-top: 32px;
+      max-width: 1100px;
+      width: 100%;
+      align-items: start;
+    }
+
+    .col h3 {
+      font-size: 1.2rem;
+      margin-bottom: 16px;
+    }
+
+    .col ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .col ul li {
+      display: flex;
+      gap: 10px;
+      font-size: 0.9rem;
+      color: var(--text-dim);
+      line-height: 1.5;
+      align-items: flex-start;
+    }
+
+    .col ul li .bullet {
+      flex-shrink: 0;
+      font-size: 1.1rem;
+      margin-top: -2px;
+    }
+
+    /* ===== PROTOCOL BOX ===== */
+    .proto-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px 24px;
+      font-family: var(--mono);
+      font-size: 0.8rem;
+      line-height: 2;
+      margin-top: 16px;
+      max-width: 600px;
+      width: 100%;
+    }
+
+    .proto-box .arrow { color: var(--cyan); }
+    .proto-box .label { color: var(--amber); }
+    .proto-box .ok { color: var(--green); }
+    .proto-box .fail { color: var(--red); }
+
+    /* ===== BIG NUMBER ===== */
+    .big-stats {
+      display: flex;
+      gap: 48px;
+      margin: 32px 0;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .stat {
+      text-align: center;
+    }
+
+    .stat .number {
+      font-size: 3.2rem;
+      font-weight: 900;
+      letter-spacing: -2px;
+      line-height: 1;
+    }
+
+    .stat .number.blue { color: var(--blue); }
+    .stat .number.cyan { color: var(--cyan); }
+    .stat .number.purple { color: var(--purple); }
+    .stat .number.green { color: var(--green); }
+
+    .stat .stat-label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 6px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    /* ===== KEY CONCEPTS LIST ===== */
+    .concept-list {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin-top: 24px;
+      max-width: 800px;
+      width: 100%;
+    }
+
+    .concept-item {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+      padding: 14px 20px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      transition: all 0.3s;
+    }
+
+    .concept-item:hover {
+      border-color: rgba(59,130,246,0.3);
+      transform: translateX(4px);
+    }
+
+    .concept-item .emoji {
+      font-size: 1.5rem;
+      flex-shrink: 0;
+    }
+
+    .concept-item .concept-text h4 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin-bottom: 2px;
+    }
+
+    .concept-item .concept-text p {
+      font-size: 0.82rem;
+      color: var(--text-dim);
+      line-height: 1.5;
+    }
+
+    /* ===== NAVIGATION ===== */
+    .nav-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 32px;
+      background: rgba(6, 8, 15, 0.85);
+      backdrop-filter: blur(20px);
+      border-top: 1px solid var(--border);
+      z-index: 100;
+    }
+
+    .nav-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .nav-title {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .nav-progress {
+      width: 120px;
+      height: 3px;
+      background: rgba(255,255,255,0.06);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .nav-progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--blue), var(--purple));
+      border-radius: 3px;
+      transition: width 0.4s ease;
+    }
+
+    .nav-center {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .nav-btn {
+      width: 40px;
+      height: 40px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--bg-card);
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 1rem;
+    }
+
+    .nav-btn:hover { border-color: var(--blue); background: var(--bg-elevated); }
+    .nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+    .nav-page {
+      font-family: var(--mono);
+      font-size: 0.82rem;
+      color: var(--text-dim);
+      min-width: 60px;
+      text-align: center;
+    }
+
+    .nav-right {
+      display: flex;
+      gap: 8px;
+    }
+
+    .nav-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.1);
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .nav-dot.active {
+      background: var(--blue);
+      box-shadow: 0 0 8px rgba(59,130,246,0.4);
+      width: 24px;
+      border-radius: 4px;
+    }
+
+    .nav-dot:hover:not(.active) { background: rgba(255,255,255,0.2); }
+
+    /* ===== SPECIAL: TITLE SLIDE ===== */
+    .title-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 16px;
+      background: rgba(59,130,246,0.1);
+      border: 1px solid rgba(59,130,246,0.25);
+      border-radius: 24px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--blue);
+      margin-bottom: 24px;
+      letter-spacing: 0.5px;
+    }
+
+    .title-badge .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--green);
+      animation: blink 1.5s infinite;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    .title-big {
+      font-size: 4.5rem;
+      font-weight: 900;
+      letter-spacing: -3px;
+      line-height: 1.05;
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .title-sub {
+      font-size: 1.3rem;
+      color: var(--text-dim);
+      text-align: center;
+      max-width: 600px;
+      line-height: 1.7;
+    }
+
+    /* ===== COMPARISON TABLE ===== */
+    .comp-table {
+      width: 100%;
+      max-width: 900px;
+      border-collapse: collapse;
+      margin-top: 28px;
+      font-size: 0.88rem;
+    }
+
+    .comp-table th {
+      text-align: left;
+      padding: 12px 16px;
+      font-weight: 700;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      font-size: 0.72rem;
+      letter-spacing: 1px;
+      border-bottom: 2px solid var(--border);
+    }
+
+    .comp-table td {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-dim);
+      line-height: 1.5;
+    }
+
+    .comp-table tr:hover td {
+      background: rgba(59,130,246,0.03);
+    }
+
+    .comp-table td:first-child {
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    /* ===== ANIMATION: Appear items ===== */
+    .appear-item {
+      opacity: 0;
+      transform: translateY(16px);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+
+    .slide.active .appear-item {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .slide.active .appear-item:nth-child(1) { transition-delay: 0.1s; }
+    .slide.active .appear-item:nth-child(2) { transition-delay: 0.2s; }
+    .slide.active .appear-item:nth-child(3) { transition-delay: 0.3s; }
+    .slide.active .appear-item:nth-child(4) { transition-delay: 0.4s; }
+    .slide.active .appear-item:nth-child(5) { transition-delay: 0.5s; }
+    .slide.active .appear-item:nth-child(6) { transition-delay: 0.6s; }
+    .slide.active .appear-item:nth-child(7) { transition-delay: 0.7s; }
+    .slide.active .appear-item:nth-child(8) { transition-delay: 0.8s; }
+    .slide.active .appear-item:nth-child(9) { transition-delay: 0.9s; }
+    .slide.active .appear-item:nth-child(10) { transition-delay: 1.0s; }
+
+    /* ===== DEMO BUTTON ===== */
+    .demo-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 16px 32px;
+      background: linear-gradient(135deg, var(--blue), #6366f1);
+      color: white;
+      border: none;
+      border-radius: 14px;
+      font-size: 1.05rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-decoration: none;
+      margin-top: 24px;
+      box-shadow: 0 4px 24px rgba(59,130,246,0.3);
+    }
+
+    .demo-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(59,130,246,0.4);
+    }
+
+    /* ===== QUOTE ===== */
+    .quote-box {
+      border-left: 3px solid var(--purple);
+      padding: 16px 24px;
+      background: rgba(167,139,250,0.05);
+      border-radius: 0 12px 12px 0;
+      margin-top: 20px;
+      max-width: 700px;
+    }
+
+    .quote-box p {
+      font-size: 1rem;
+      color: var(--text-dim);
+      line-height: 1.7;
+      font-style: italic;
+    }
+
+    /* ===== KEYBOARD HINT ===== */
+    .key-hint {
+      position: fixed;
+      top: 20px;
+      right: 24px;
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      z-index: 100;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .key {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2px 8px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      min-width: 24px;
+    }
+
+    /* ===== HANDOVER DIAGRAM ===== */
+    .handover-visual {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 32px;
+      margin: 28px 0;
+    }
+
+    .tower-visual {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .tower-icon {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      border: 2px solid var(--border);
+      background: var(--bg-card);
+      transition: all 0.3s;
+    }
+
+    .tower-icon.glow-green {
+      border-color: var(--green);
+      box-shadow: 0 0 20px rgba(52,211,153,0.2);
+    }
+
+    .tower-icon.glow-red {
+      border-color: var(--red);
+      opacity: 0.5;
+    }
+
+    .tower-label { font-size: 0.85rem; font-weight: 700; }
+    .tower-sub { font-size: 0.7rem; color: var(--text-muted); }
+
+    .handover-arrow {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .handover-arrow .arrow-line {
+      font-size: 2rem;
+      color: var(--amber);
+      animation: arrowMove 1.5s ease-in-out infinite;
+    }
+
+    @keyframes arrowMove {
+      0%, 100% { transform: translateX(-4px); }
+      50% { transform: translateX(4px); }
+    }
+
+    .handover-arrow .arrow-label {
+      font-size: 0.72rem;
+      color: var(--amber);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .small-note {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-top: 8px;
+      text-align: center;
+      line-height: 1.6;
+      max-width: 600px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="presentation" id="presentation">
+
+  <!-- ===== SLIDE 0: TITLE ===== -->
+  <div class="slide active bg-glow-blue bg-grid" data-slide="0">
+    <span class="slide-number">00 / 13</span>
+    <div class="title-badge"><span class="dot"></span> Telecom Networks</div>
+    <div class="title-big">
+      <span class="grad-multi">LTE Network</span><br>Architecture
+    </div>
+    <p class="title-sub">
+      Understanding how your phone connects to the internet — from power-on to full network access through the 4G/LTE attach procedure.
+    </p>
+    <a class="demo-btn" href="index.html" target="_blank">
+      🚀 Launch Live Simulator
+    </a>
+  </div>
+
+  <!-- ===== SLIDE 1: WHAT IS LTE ===== -->
+  <div class="slide bg-glow-cyan" data-slide="1">
+    <span class="slide-number">01 / 13</span>
+    <p class="kicker cyan">Introduction</p>
+    <h1>What is <span class="grad-cyan">LTE</span>?</h1>
+    <p class="subtitle">Long Term Evolution — the standard for high-speed wireless communication for mobile devices.</p>
+
+    <div class="big-stats">
+      <div class="stat appear-item"><div class="number cyan">4G</div><div class="stat-label">Generation</div></div>
+      <div class="stat appear-item"><div class="number blue">300</div><div class="stat-label">Mbps Download</div></div>
+      <div class="stat appear-item"><div class="number purple">75</div><div class="stat-label">Mbps Upload</div></div>
+      <div class="stat appear-item"><div class="number green">&lt;10ms</div><div class="stat-label">Latency</div></div>
+    </div>
+
+    <div class="concept-list">
+      <div class="concept-item appear-item">
+        <span class="emoji">📡</span>
+        <div class="concept-text">
+          <h4>All-IP Architecture</h4>
+          <p>Unlike 2G/3G, LTE uses IP for all traffic — voice, video, and data travel the same way.</p>
+        </div>
+      </div>
+      <div class="concept-item appear-item">
+        <span class="emoji">⚡</span>
+        <div class="concept-text">
+          <h4>OFDMA/SC-FDMA</h4>
+          <p>Uses Orthogonal Frequency Division Multiple Access for downlink, enabling efficient spectrum allocation.</p>
+        </div>
+      </div>
+      <div class="concept-item appear-item">
+        <span class="emoji">🌍</span>
+        <div class="concept-text">
+          <h4>Global Standard (3GPP)</h4>
+          <p>Defined by the 3rd Generation Partnership Project — used by every major carrier worldwide.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SLIDE 2: LTE vs Older Generations ===== -->
+  <div class="slide bg-glow-purple" data-slide="2">
+    <span class="slide-number">02 / 13</span>
+    <p class="kicker purple">Context</p>
+    <h1>Evolution of <span class="grad-purple">Mobile Networks</span></h1>
+    <p class="subtitle">Each generation brought massive improvements in speed, capacity, and architecture.</p>
+
+    <table class="comp-table appear-item">
+      <thead>
+        <tr><th>Generation</th><th>Technology</th><th>Speed</th><th>Key Feature</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>2G (GSM)</td><td>Circuit-switched</td><td>~40 Kbps</td><td>SMS, basic voice</td></tr>
+        <tr><td>3G (UMTS)</td><td>WCDMA</td><td>~2 Mbps</td><td>Mobile internet, video calls</td></tr>
+        <tr><td style="color:var(--cyan); font-weight:800">4G (LTE)</td><td style="color:var(--cyan)">OFDMA / All-IP</td><td style="color:var(--cyan)">~300 Mbps</td><td style="color:var(--cyan)">Streaming, VoLTE, IoT</td></tr>
+        <tr><td>5G (NR)</td><td>mmWave / sub-6</td><td>~10 Gbps</td><td>Ultra-low latency, massive IoT</td></tr>
+      </tbody>
+    </table>
+
+    <div class="quote-box appear-item">
+      <p>"LTE was the first mobile architecture to go fully packet-switched, eliminating legacy circuit-switching for voice and making everything run over IP."</p>
+    </div>
+  </div>
+
+  <!-- ===== SLIDE 3: LTE ARCHITECTURE OVERVIEW ===== -->
+  <div class="slide bg-glow-blue bg-grid" data-slide="3">
+    <span class="slide-number">03 / 13</span>
+    <p class="kicker blue">Architecture</p>
+    <h1>LTE Network <span class="grad-blue">Components</span></h1>
+    <p class="subtitle">The LTE network is split into three domains, each handling a specific part of the communication chain.</p>
+
+    <div class="cards cols-3" style="margin-top:28px;">
+      <div class="card blue-card appear-item" style="text-align:center;">
+        <div class="card-icon bg-blue" style="margin:0 auto 12px;">📱</div>
+        <h3>User Equipment (UE)</h3>
+        <p>Your phone or device.<br>Contains SIM (USIM) with subscriber identity.</p>
+        <span class="tag blue">End User</span>
+      </div>
+      <div class="card cyan-card appear-item" style="text-align:center;">
+        <div class="card-icon bg-cyan" style="margin:0 auto 12px;">📡</div>
+        <h3>E-UTRAN (Radio)</h3>
+        <p>The radio access network. Made of eNodeB base stations providing wireless coverage.</p>
+        <span class="tag cyan">Access Network</span>
+      </div>
+      <div class="card purple-card appear-item" style="text-align:center;">
+        <div class="card-icon bg-purple" style="margin:0 auto 12px;">🧠</div>
+        <h3>EPC (Core)</h3>
+        <p>Evolved Packet Core. Manages security, sessions, mobility, and internet connectivity.</p>
+        <span class="tag purple">Core Network</span>
+      </div>
+    </div>
+
+    <div class="arch-diagram appear-item">
+      <div class="arch-node blue"><span class="icon">📱</span><span class="label">UE</span></div>
+      <span class="arch-arrow">→</span>
+      <div class="arch-node cyan"><span class="icon">📡</span><span class="label">eNodeB</span></div>
+      <span class="arch-arrow">→</span>
+      <div class="arch-branch">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div class="arch-node purple"><span class="icon">🧠</span><span class="label">MME</span></div>
+          <span class="arch-arrow">↔</span>
+          <div class="arch-node amber"><span class="icon">🗄️</span><span class="label">HSS</span></div>
+        </div>
+        <span class="arch-arrow-down">↕</span>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div class="arch-node green"><span class="icon">🔀</span><span class="label">SGW</span></div>
+          <span class="arch-arrow">→</span>
+          <div class="arch-node red"><span class="icon">🌐</span><span class="label">PGW</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SLIDE 4: UE & eNodeB ===== -->
+  <div class="slide bg-glow-cyan" data-slide="4">
+    <span class="slide-number">04 / 13</span>
+    <p class="kicker cyan">Components — Part 1</p>
+    <h1><span class="grad-cyan">UE</span> & <span class="grad-blue">eNodeB</span></h1>
+
+    <div class="two-col">
+      <div class="col">
+        <div class="card cyan-card appear-item">
+          <div class="card-icon bg-cyan">📱</div>
+          <h3>UE — User Equipment</h3>
+          <p>The device the user holds — a phone, tablet, or IoT module. It contains:</p>
+          <ul style="margin-top:12px;">
+            <li><span class="bullet" style="color:var(--cyan)">◆</span> <strong>USIM</strong> — stores the subscriber identity (IMSI) and authentication keys</li>
+            <li><span class="bullet" style="color:var(--cyan)">◆</span> <strong>IMEI</strong> — unique device hardware identifier</li>
+            <li><span class="bullet" style="color:var(--cyan)">◆</span> <strong>Radio transceiver</strong> — communicates with cell towers on LTE frequencies</li>
+          </ul>
+          <span class="tag cyan">Client Side</span>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card blue-card appear-item">
+          <div class="card-icon bg-blue">📡</div>
+          <h3>eNodeB — Evolved Node B</h3>
+          <p>The LTE cell tower (base station). Responsibilities:</p>
+          <ul style="margin-top:12px;">
+            <li><span class="bullet" style="color:var(--blue)">◆</span> <strong>Radio Resource Management</strong> — allocates bandwidth to users</li>
+            <li><span class="bullet" style="color:var(--blue)">◆</span> <strong>S1 Interface</strong> — connects to the core network (MME + SGW)</li>
+            <li><span class="bullet" style="color:var(--blue)">◆</span> <strong>X2 Interface</strong> — connects to neighboring eNodeBs for handover</li>
+          </ul>
+          <span class="tag blue">Access Network</span>
+        </div>
+      </div>
+    </div>
+
+    <p class="small-note appear-item">💡 <strong>Key concept:</strong> IMSI (International Mobile Subscriber Identity) is like a phone's passport — it uniquely identifies you to the network worldwide.</p>
+  </div>
+
+  <!-- ===== SLIDE 5: MME & HSS ===== -->
+  <div class="slide bg-glow-purple" data-slide="5">
+    <span class="slide-number">05 / 13</span>
+    <p class="kicker purple">Components — Part 2</p>
+    <h1><span class="grad-purple">MME</span> & <span class="grad-amber">HSS</span></h1>
+
+    <div class="two-col">
+      <div class="col">
+        <div class="card purple-card appear-item">
+          <div class="card-icon bg-purple">🧠</div>
+          <h3>MME — Mobility Management Entity</h3>
+          <p>The "brain" of the LTE core. It handles all control-plane signaling:</p>
+          <ul style="margin-top:12px;">
+            <li><span class="bullet" style="color:var(--purple)">◆</span> <strong>Authentication</strong> — verifies subscriber identity via HSS</li>
+            <li><span class="bullet" style="color:var(--purple)">◆</span> <strong>NAS Security</strong> — encrypts and protects signaling messages</li>
+            <li><span class="bullet" style="color:var(--purple)">◆</span> <strong>Session Management</strong> — creates/deletes bearers</li>
+            <li><span class="bullet" style="color:var(--purple)">◆</span> <strong>Mobility</strong> — tracks which tower you're connected to</li>
+          </ul>
+          <span class="tag purple">Control Plane</span>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card amber-card appear-item">
+          <div class="card-icon bg-amber">🗄️</div>
+          <h3>HSS — Home Subscriber Server</h3>
+          <p>The central database that stores every subscriber's information:</p>
+          <ul style="margin-top:12px;">
+            <li><span class="bullet" style="color:var(--amber)">◆</span> <strong>Subscriber profile</strong> — QoS, APN, allowed services</li>
+            <li><span class="bullet" style="color:var(--amber)">◆</span> <strong>Authentication keys</strong> — used for EPS-AKA challenge</li>
+            <li><span class="bullet" style="color:var(--amber)">◆</span> <strong>Location info</strong> — which MME is serving each subscriber</li>
+          </ul>
+          <span class="tag amber">Subscriber Database</span>
+        </div>
+      </div>
+    </div>
+
+    <p class="small-note appear-item">💡 <strong>Analogy:</strong> The MME is like airport security — checking your passport (IMSI) against the database (HSS) before letting you through.</p>
+  </div>
+
+  <!-- ===== SLIDE 6: SGW & PGW ===== -->
+  <div class="slide bg-glow-green" data-slide="6">
+    <span class="slide-number">06 / 13</span>
+    <p class="kicker green">Components — Part 3</p>
+    <h1><span class="grad-green">SGW</span> & <span class="grad-red">PGW</span></h1>
+
+    <div class="two-col">
+      <div class="col">
+        <div class="card green-card appear-item">
+          <div class="card-icon bg-green">🔀</div>
+          <h3>SGW — Serving Gateway</h3>
+          <p>Routes user data packets between eNodeB and the core:</p>
+          <ul style="margin-top:12px;">
+            <li><span class="bullet" style="color:var(--green)">◆</span> <strong>Data routing</strong> — forwards data to/from the eNodeB</li>
+            <li><span class="bullet" style="color:var(--green)">◆</span> <strong>Anchor point</strong> — during handovers, keeps data flowing</li>
+            <li><span class="bullet" style="color:var(--green)">◆</span> <strong>Buffering</strong> — stores packets when UE is in idle mode</li>
+          </ul>
+          <span class="tag green">User Plane</span>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card red-card appear-item">
+          <div class="card-icon bg-red">🌐</div>
+          <h3>PGW — Packet Data Network Gateway</h3>
+          <p>The gateway to the internet and external services:</p>
+          <ul style="margin-top:12px;">
+            <li><span class="bullet" style="color:var(--red)">◆</span> <strong>IP allocation</strong> — assigns your device an IP address</li>
+            <li><span class="bullet" style="color:var(--red)">◆</span> <strong>Policy enforcement</strong> — applies QoS, billing rules</li>
+            <li><span class="bullet" style="color:var(--red)">◆</span> <strong>Internet access</strong> — connects you to the outside world</li>
+          </ul>
+          <span class="tag red">Internet Gateway</span>
+        </div>
+      </div>
+    </div>
+
+    <p class="small-note appear-item">💡 <strong>Analogy:</strong> SGW = highway interchange (routes traffic locally). PGW = border crossing (gives you access to the internet).</p>
+  </div>
+
+  <!-- ===== SLIDE 7: ATTACH OVERVIEW ===== -->
+  <div class="slide bg-glow-blue bg-grid" data-slide="7">
+    <span class="slide-number">07 / 13</span>
+    <p class="kicker blue">Core Process</p>
+    <h1>The <span class="grad-blue">Attach Procedure</span></h1>
+    <p class="subtitle">When you power on your phone, this exact sequence happens before you get internet access. It takes less than 2 seconds in real life.</p>
+
+    <div class="big-stats">
+      <div class="stat appear-item"><div class="number blue">10</div><div class="stat-label">Steps</div></div>
+      <div class="stat appear-item"><div class="number cyan">6</div><div class="stat-label">Entities</div></div>
+      <div class="stat appear-item"><div class="number purple">~1.5s</div><div class="stat-label">Real Duration</div></div>
+      <div class="stat appear-item"><div class="number green">4</div><div class="stat-label">Protocols</div></div>
+    </div>
+
+    <div class="proto-box appear-item">
+      <div><span class="label">Protocols involved:</span></div>
+      <div>  <span class="arrow">NAS</span>  — Non-Access Stratum (UE ↔ MME signaling)</div>
+      <div>  <span class="arrow">S1-AP</span> — S1 Application Protocol (eNodeB ↔ MME)</div>
+      <div>  <span class="arrow">GTP-C</span> — GPRS Tunneling Protocol (SGW ↔ PGW)</div>
+      <div>  <span class="arrow">Diameter</span> — (MME ↔ HSS authentication)</div>
+    </div>
+  </div>
+
+  <!-- ===== SLIDE 8: ATTACH STEPS 1-5 ===== -->
+  <div class="slide bg-glow-cyan" data-slide="8">
+    <span class="slide-number">08 / 13</span>
+    <p class="kicker cyan">Attach Procedure — Phase 1</p>
+    <h2>Steps 1–5: <span style="color:var(--cyan)">Discovery & Authentication</span></h2>
+
+    <div class="timeline">
+      <div class="timeline-step appear-item">
+        <div class="timeline-marker blue">1</div>
+        <div class="timeline-content">
+          <h4>UE Powers On</h4>
+          <p>Device initializes radio, reads SIM card (USIM), retrieves IMSI and authentication keys.</p>
+        </div>
+      </div>
+      <div class="timeline-step appear-item">
+        <div class="timeline-marker cyan">2</div>
+        <div class="timeline-content">
+          <h4>Cell Search</h4>
+          <p>UE scans frequencies, finds the strongest eNodeB signal, synchronizes timing, and reads the System Information Block (SIB).</p>
+          <div class="msg">UE measures RSRP/RSRQ → selects best cell</div>
+        </div>
+      </div>
+      <div class="timeline-step appear-item">
+        <div class="timeline-marker purple">3</div>
+        <div class="timeline-content">
+          <h4>Attach Request</h4>
+          <p>UE sends NAS Attach Request containing IMSI, UE capabilities, and requested PDN type to the eNodeB.</p>
+          <div class="msg">UE → eNodeB : RRC Connection + Attach Request</div>
+        </div>
+      </div>
+      <div class="timeline-step appear-item">
+        <div class="timeline-marker purple">4</div>
+        <div class="timeline-content">
+          <h4>Forward to MME</h4>
+          <p>eNodeB wraps the message in S1-AP and sends it to the MME over the S1 interface.</p>
+          <div class="msg">eNodeB → MME : Initial UE Message (S1-AP)</div>
+        </div>
+      </div>
+      <div class="timeline-step appear-item">
+        <div class="timeline-marker amber">5</div>
+        <div class="timeline-content">
+          <h4>HSS Authentication Query</h4>
+          <p>MME contacts the HSS via Diameter protocol to fetch authentication vectors for the subscriber's IMSI.</p>
+          <div class="msg">MME → HSS : Authentication Info Request (Diameter)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SLIDE 9: ATTACH STEPS 6-10 ===== -->
+  <div class="slide bg-glow-green" data-slide="9">
+    <span class="slide-number">09 / 13</span>
+    <p class="kicker green">Attach Procedure — Phase 2</p>
+    <h2>Steps 6–10: <span style="color:var(--green)">Security & Session</span></h2>
+
+    <div class="timeline">
+      <div class="timeline-step appear-item">
+        <div class="timeline-marker amber">6</div>
+        <div class="timeline-content">
+          <h4>EPS-AKA Authentication</h4>
+          <p>MME sends a challenge (RAND, AUTN) to the UE. UE verifies network authenticity and responds with RES. MME compares RES with XRES.</p>
+          <div class="msg">MME → UE : Auth Request | UE → MME : Auth Response</div>
+        </div>
+      </div>
+      <div class="timeline-step appear-item">
+        <div class="timeline-marker purple">7</div>
+        <div class="timeline-content">
+          <h4>NAS Security Mode</h4>
+          <p>MME and UE negotiate encryption (EEA) and integrity (EIA) algorithms. All further NAS messages are protected.</p>
+          <div class="msg">Security Mode Command → Security Mode Complete</div>
+        </div>
+      </div>
+      <div class="timeline-step appear-item">
+        <div class="timeline-marker green">8</div>
+        <div class="timeline-content">
+          <h4>Create Session (GTP)</h4>
+          <p>MME sends Create Session Request to SGW, which forwards to PGW. This establishes the data path (bearer).</p>
+          <div class="msg">MME → SGW → PGW : Create Session Request (GTP-C)</div>
+        </div>
+      </div>
+      <div class="timeline-step appear-item">
+        <div class="timeline-marker green">9</div>
+        <div class="timeline-content">
+          <h4>IP Address Assigned</h4>
+          <p>PGW allocates an IP address from its pool and returns it via SGW back to the MME. The default bearer is now established.</p>
+          <div class="msg">PGW → SGW → MME : IP = 10.20.x.x, QCI = 9</div>
+        </div>
+      </div>
+      <div class="timeline-step appear-item">
+        <div class="timeline-marker blue">10</div>
+        <div class="timeline-content">
+          <h4>Attach Complete ✓</h4>
+          <p>MME sends Attach Accept to UE. UE responds with Attach Complete. Device is now registered and has internet access!</p>
+          <div class="msg">✓ Status: ATTACHED | Internet Access: ACTIVE</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SLIDE 10: AUTHENTICATION DEEP DIVE ===== -->
+  <div class="slide bg-glow-amber" data-slide="10">
+    <span class="slide-number">10 / 13</span>
+    <p class="kicker amber">Security</p>
+    <h1><span class="grad-amber">EPS-AKA</span> Authentication</h1>
+    <p class="subtitle">Evolved Packet System — Authentication and Key Agreement. The mutual authentication protocol that protects LTE networks.</p>
+
+    <div class="two-col" style="margin-top:24px;">
+      <div class="col">
+        <div class="concept-list" style="margin-top:0;">
+          <div class="concept-item appear-item">
+            <span class="emoji">🔑</span>
+            <div class="concept-text">
+              <h4>Shared Secret Key (K)</h4>
+              <p>Pre-shared between SIM card and HSS. Never transmitted over the air.</p>
+            </div>
+          </div>
+          <div class="concept-item appear-item">
+            <span class="emoji">🎲</span>
+            <div class="concept-text">
+              <h4>RAND (Random Challenge)</h4>
+              <p>HSS generates random number. UE must produce the correct response using key K.</p>
+            </div>
+          </div>
+          <div class="concept-item appear-item">
+            <span class="emoji">🔐</span>
+            <div class="concept-text">
+              <h4>Mutual Authentication</h4>
+              <p>UE also verifies the network using AUTN — prevents fake base station attacks.</p>
+            </div>
+          </div>
+          <div class="concept-item appear-item">
+            <span class="emoji">🛡️</span>
+            <div class="concept-text">
+              <h4>KASME (Session Key)</h4>
+              <p>Derived key used for all further encryption. Changes every session for forward secrecy.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="proto-box appear-item" style="margin-top:0;">
+          <div style="color:var(--text);font-weight:700;margin-bottom:8px;">Authentication Flow:</div>
+          <div><span class="label">HSS</span> generates: RAND, XRES, AUTN, KASME</div>
+          <div><span class="arrow">→</span> sends Auth Vector to <span class="label">MME</span></div>
+          <div></div>
+          <div><span class="label">MME</span> <span class="arrow">→</span> <span class="label">UE</span> : RAND + AUTN</div>
+          <div></div>
+          <div><span class="label">UE</span> verifies AUTN using key K</div>
+          <div>  <span class="ok">✓ Network is genuine</span></div>
+          <div><span class="label">UE</span> computes RES from RAND + K</div>
+          <div></div>
+          <div><span class="label">UE</span> <span class="arrow">→</span> <span class="label">MME</span> : RES</div>
+          <div></div>
+          <div><span class="label">MME</span> compares RES == XRES</div>
+          <div>  <span class="ok">✓ Subscriber authenticated</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SLIDE 11: HANDOVER & MOBILITY ===== -->
+  <div class="slide bg-glow-green" data-slide="11">
+    <span class="slide-number">11 / 13</span>
+    <p class="kicker green">Mobility</p>
+    <h1>Cell <span class="grad-green">Handover</span></h1>
+    <p class="subtitle">When you move from one tower's coverage to another, the network seamlessly transfers your connection — without dropping the call or session.</p>
+
+    <div class="handover-visual appear-item">
+      <div class="tower-visual">
+        <div class="tower-icon glow-red">📡</div>
+        <span class="tower-label">Tower A</span>
+        <span class="tower-sub" style="color:var(--red)">Signal weakening</span>
+      </div>
+      <div class="handover-arrow">
+        <span class="arrow-line">⟹</span>
+        <span class="arrow-label">X2 Handover</span>
+      </div>
+      <div class="tower-visual">
+        <div class="tower-icon glow-green">📡</div>
+        <span class="tower-label">Tower B</span>
+        <span class="tower-sub" style="color:var(--green)">Stronger signal</span>
+      </div>
+    </div>
+
+    <div class="concept-list" style="max-width:750px;">
+      <div class="concept-item appear-item">
+        <span class="emoji">📊</span>
+        <div class="concept-text">
+          <h4>1. Measurement Report</h4>
+          <p>UE continuously measures signal strength of neighboring cells and reports to the serving eNodeB.</p>
+        </div>
+      </div>
+      <div class="concept-item appear-item">
+        <span class="emoji">📋</span>
+        <div class="concept-text">
+          <h4>2. Handover Decision</h4>
+          <p>Source eNodeB decides to handover based on A3 event (neighbor stronger than serving by offset).</p>
+        </div>
+      </div>
+      <div class="concept-item appear-item">
+        <span class="emoji">🔄</span>
+        <div class="concept-text">
+          <h4>3. X2 Handover</h4>
+          <p>Source eNodeB sends HO Request to target, context is transferred, UE switches. SGW path is updated via MME.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SLIDE 12: FAILURE SCENARIOS ===== -->
+  <div class="slide bg-glow-amber" data-slide="12">
+    <span class="slide-number">12 / 13</span>
+    <p class="kicker red">Error Handling</p>
+    <h1>Failure <span class="grad-red">Scenarios</span></h1>
+    <p class="subtitle">Not every attach attempt succeeds. The LTE network handles errors gracefully with specific rejection causes.</p>
+
+    <div class="cards cols-3" style="margin-top:28px;">
+      <div class="card red-card appear-item">
+        <div class="card-icon bg-red">🚫</div>
+        <h3>Invalid SIM</h3>
+        <p>The IMSI on the SIM card is not found in the HSS database. The subscriber is unknown to the network.</p>
+        <div class="proto-box" style="margin-top:12px;font-size:0.72rem;padding:12px;">
+          <div><span class="label">HSS</span> <span class="arrow">→</span> <span class="label">MME</span></div>
+          <div><span class="fail">IMSI not found</span></div>
+          <div>Cause: <span class="fail">#2 IMSI Unknown</span></div>
+        </div>
+        <span class="tag red">EMM Cause #2</span>
+      </div>
+      <div class="card amber-card appear-item">
+        <div class="card-icon bg-amber">⚠️</div>
+        <h3>Authentication Failure</h3>
+        <p>The UE failed to produce the correct RES response. Could mean tampered SIM or key mismatch between SIM and HSS.</p>
+        <div class="proto-box" style="margin-top:12px;font-size:0.72rem;padding:12px;">
+          <div><span class="label">UE</span> <span class="arrow">→</span> <span class="label">MME</span></div>
+          <div><span class="fail">MAC mismatch</span></div>
+          <div>Cause: <span class="fail">RES ≠ XRES</span></div>
+        </div>
+        <span class="tag amber">EMM Cause #20</span>
+      </div>
+      <div class="card blue-card appear-item">
+        <div class="card-icon bg-blue">📡</div>
+        <h3>Tower Unreachable</h3>
+        <p>No eNodeB signal detected. Could be caused by outage, out-of-coverage area, or radio interference.</p>
+        <div class="proto-box" style="margin-top:12px;font-size:0.72rem;padding:12px;">
+          <div class="fail">No cell detected</div>
+          <div class="fail">RRC Connection Failure</div>
+          <div>Cause: <span class="fail">No Coverage</span></div>
+        </div>
+        <span class="tag blue">RRC Failure</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SLIDE 13: LIVE DEMO / CONCLUSION ===== -->
+  <div class="slide bg-glow-blue bg-grid" data-slide="13">
+    <span class="slide-number">13 / 13</span>
+    <p class="kicker pink">Conclusion</p>
+    <div class="title-big" style="font-size:3.5rem;">
+      <span class="grad-multi">Live Demo</span> Time
+    </div>
+    <p class="subtitle" style="margin-bottom:8px;">Let's see all of these concepts in action with the interactive LTE Network Attach Simulator.</p>
+
+    <a class="demo-btn" href="index.html" target="_blank">🚀 Launch Simulator</a>
+
+    <div class="cards cols-4" style="margin-top:40px; max-width:900px;">
+      <div class="card blue-card appear-item" style="text-align:center; padding:20px 14px;">
+        <div style="font-size:1.6rem;margin-bottom:8px;">▶️</div>
+        <h3 style="font-size:0.85rem;">1. Start Attach</h3>
+        <p style="font-size:0.75rem;">Watch the full 10-step procedure animate</p>
+      </div>
+      <div class="card red-card appear-item" style="text-align:center; padding:20px 14px;">
+        <div style="font-size:1.6rem;margin-bottom:8px;">🚫</div>
+        <h3 style="font-size:0.85rem;">2. Test Failures</h3>
+        <p style="font-size:0.75rem;">Invalid SIM, Auth Failure, Tower Down</p>
+      </div>
+      <div class="card green-card appear-item" style="text-align:center; padding:20px 14px;">
+        <div style="font-size:1.6rem;margin-bottom:8px;">📍</div>
+        <h3 style="font-size:0.85rem;">3. Move Device</h3>
+        <p style="font-size:0.75rem;">Trigger an X2 handover between towers</p>
+      </div>
+      <div class="card purple-card appear-item" style="text-align:center; padding:20px 14px;">
+        <div style="font-size:1.6rem;margin-bottom:8px;">📋</div>
+        <h3 style="font-size:0.85rem;">4. Read Logs</h3>
+        <p style="font-size:0.75rem;">Every protocol message is timestamped</p>
+      </div>
+    </div>
+
+    <div class="concept-list appear-item" style="margin-top:32px; max-width:700px;">
+      <div class="concept-item">
+        <span class="emoji">🎓</span>
+        <div class="concept-text">
+          <h4>Key Takeaways</h4>
+          <p>LTE uses an all-IP flat architecture. The attach procedure involves mutual authentication (EPS-AKA), NAS security, GTP tunneling for data, and seamless handover for mobility — all in under 2 seconds.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== NAVIGATION BAR ===== -->
+<div class="nav-bar">
+  <div class="nav-left">
+    <span class="nav-title">LTE Network Architecture</span>
+    <div class="nav-progress"><div class="nav-progress-bar" id="progressBar" style="width:0%"></div></div>
+  </div>
+  <div class="nav-center">
+    <button class="nav-btn" id="btnPrev" title="Previous Slide">←</button>
+    <span class="nav-page" id="navPage">1 / 14</span>
+    <button class="nav-btn" id="btnNext" title="Next Slide">→</button>
+  </div>
+  <div class="nav-right" id="navDots"></div>
+</div>
+
+<div class="key-hint">
+  <span class="key">←</span><span class="key">→</span> Navigate
+</div>
+
+<script>
+(function() {
+  const slides = document.querySelectorAll('.slide');
+  const total = slides.length;
+  let current = 0;
+
+  const progressBar = document.getElementById('progressBar');
+  const navPage = document.getElementById('navPage');
+  const navDots = document.getElementById('navDots');
+  const btnPrev = document.getElementById('btnPrev');
+  const btnNext = document.getElementById('btnNext');
+
+  // Create dots
+  for (let i = 0; i < total; i++) {
+    const dot = document.createElement('div');
+    dot.className = 'nav-dot' + (i === 0 ? ' active' : '');
+    dot.addEventListener('click', () => goTo(i));
+    navDots.appendChild(dot);
+  }
+
+  function goTo(index) {
+    if (index < 0 || index >= total || index === current) return;
+
+    const prev = slides[current];
+    const next = slides[index];
+
+    prev.classList.remove('active');
+    prev.classList.add(index > current ? 'exit-left' : '');
+    setTimeout(() => prev.classList.remove('exit-left'), 500);
+
+    next.classList.add('active');
+    current = index;
+
+    updateNav();
+  }
+
+  function updateNav() {
+    navPage.textContent = `${current + 1} / ${total}`;
+    progressBar.style.width = ((current / (total - 1)) * 100) + '%';
+    btnPrev.disabled = current === 0;
+    btnNext.disabled = current === total - 1;
+
+    const dots = navDots.querySelectorAll('.nav-dot');
+    dots.forEach((d, i) => d.classList.toggle('active', i === current));
+  }
+
+  btnPrev.addEventListener('click', () => goTo(current - 1));
+  btnNext.addEventListener('click', () => goTo(current + 1));
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); goTo(current + 1); }
+    if (e.key === 'ArrowLeft') { e.preventDefault(); goTo(current - 1); }
+    if (e.key === 'Home') { e.preventDefault(); goTo(0); }
+    if (e.key === 'End') { e.preventDefault(); goTo(total - 1); }
+  });
+
+  updateNav();
+})();
+</script>
+
+</body>
+</html>
