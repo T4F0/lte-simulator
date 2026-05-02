@@ -1097,19 +1097,19 @@
       <div class="card blue-card appear-item" style="text-align:center;">
         <div class="card-icon bg-blue" style="margin:0 auto 12px;">📱</div>
         <h3>User Equipment (UE)</h3>
-        <p>Your phone or device.<br>Contains SIM (USIM) with subscriber identity.</p>
+        <p>Your phone, tablet, or modem.<br>Holds the SIM that proves who you are.</p>
         <span class="tag blue">End User</span>
       </div>
       <div class="card cyan-card appear-item" style="text-align:center;">
         <div class="card-icon bg-cyan" style="margin:0 auto 12px;">📡</div>
         <h3>E-UTRAN (Radio)</h3>
-        <p>The radio access network. Made of eNodeB base stations providing wireless coverage.</p>
+        <p>The radio network. eNodeB towers give you signal and connect you to LTE.</p>
         <span class="tag cyan">Access Network</span>
       </div>
       <div class="card purple-card appear-item" style="text-align:center;">
         <div class="card-icon bg-purple" style="margin:0 auto 12px;">🧠</div>
         <h3>EPC (Core)</h3>
-        <p>Evolved Packet Core. Manages security, sessions, mobility, and internet connectivity.</p>
+        <p>The core network. It checks your SIM, starts a session, and links you to the internet.</p>
         <span class="tag purple">Core Network</span>
       </div>
     </div>
@@ -1152,10 +1152,10 @@
         <div class="component-tags" id="componentTags"></div>
       </div>
       <p class="component-summary" id="componentSummary">
-        The LTE base station that handles radio access and connects the UE to the core network.
+        The LTE tower that gives you signal and links your device to the core network.
       </p>
       <ul class="component-bullets" id="componentBullets"></ul>
-      <div class="component-hint">Tip: click a node above to see details without leaving this slide.</div>
+      <div class="component-hint">Tip: click a node above to see simple talking points.</div>
     </div>
   </div>
 
@@ -1571,61 +1571,67 @@
     const componentData = {
       ue: {
         title: 'UE — User Equipment',
-        summary: 'The subscriber device that contains the SIM and runs the LTE radio stack.',
+        summary: 'Your phone or device that connects to the LTE network. It holds the SIM and talks to the nearest tower.',
         bullets: [
-          'USIM stores IMSI and authentication keys',
-          'IMEI uniquely identifies the hardware',
-          'Handles RRC and NAS signaling over LTE radio'
+          'SIM holds your IMSI (subscriber ID)',
+          'Talks to the tower over radio',
+          'Starts the attach process',
+          'Gets an IP address after attach'
         ],
-        tags: [{ label: 'Client Side', color: 'cyan' }]
+        tags: [{ label: 'Your Device', color: 'cyan' }]
       },
       enodeb: {
         title: 'eNodeB — Evolved Node B',
-        summary: 'The LTE base station that provides radio access and connects to the EPC.',
+        summary: 'The LTE tower that gives signal and connects you to the core network. It is the first network point your phone talks to.',
         bullets: [
-          'Schedules radio resources and manages cells',
-          'S1 interface to MME and SGW',
-          'X2 interface for handover coordination'
+          'Covers a cell area',
+          'Relays messages between phone and core',
+          'Helps with handover to other towers',
+          'Shares radio resources between users'
         ],
-        tags: [{ label: 'Access Network', color: 'blue' }]
+        tags: [{ label: 'Radio Access', color: 'blue' }]
       },
       mme: {
         title: 'MME — Mobility Management Entity',
-        summary: 'The control-plane brain that handles authentication, mobility, and sessions.',
+        summary: 'The control brain that checks your SIM and manages your session. It decides if you can join the network.',
         bullets: [
-          'EPS-AKA authentication via HSS',
-          'NAS security and signaling management',
-          'Bearer and mobility management'
+          'Authenticates the subscriber',
+          'Tracks which tower you are on',
+          'Starts and ends sessions',
+          'Triggers security setup'
         ],
         tags: [{ label: 'Control Plane', color: 'purple' }]
       },
       hss: {
         title: 'HSS — Home Subscriber Server',
-        summary: 'Central subscriber database for identity, security, and service profiles.',
+        summary: 'The database that stores subscriber information. It answers the MME with the right security data.',
         bullets: [
-          'Stores IMSI, keys, and subscriber profile',
-          'Supplies auth vectors to MME',
-          'Tracks subscriber location and serving MME'
+          'Keeps IMSI and secret keys',
+          'Sends auth info to the MME',
+          'Stores service profile',
+          'Keeps basic subscriber status'
         ],
-        tags: [{ label: 'Subscriber Database', color: 'amber' }]
+        tags: [{ label: 'Subscriber DB', color: 'amber' }]
       },
       sgw: {
         title: 'SGW — Serving Gateway',
-        summary: 'User-plane anchor that routes traffic between eNodeB and PGW.',
+        summary: 'A traffic router between the tower and the internet gateway. It keeps data flowing as you move.',
         bullets: [
-          'Forwards data packets to/from eNodeB',
-          'Anchors mobility during handover',
-          'Buffers downlink data for idle UEs'
+          'Forwards user data',
+          'Keeps traffic flowing during handover',
+          'Acts as a local anchor point',
+          'Handles user data paths'
         ],
-        tags: [{ label: 'User Plane', color: 'green' }]
+        tags: [{ label: 'User Data', color: 'green' }]
       },
       pgw: {
         title: 'PGW — Packet Data Network Gateway',
-        summary: 'Gateway to external networks that assigns IP and enforces policy.',
+        summary: 'The gateway to the internet and external services. It is where your LTE data meets the outside world.',
         bullets: [
-          'Allocates IP addresses for UE',
-          'Applies QoS and charging rules',
-          'Connects to the internet and services'
+          'Gives the device an IP address',
+          'Applies basic rules and limits',
+          'Connects to the public internet',
+          'Links to apps and services'
         ],
         tags: [{ label: 'Internet Gateway', color: 'red' }]
       }
