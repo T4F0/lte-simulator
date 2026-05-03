@@ -73,6 +73,11 @@
       transform: translateX(-60px);
     }
 
+    .slide.exit-right {
+      opacity: 0;
+      transform: translateX(60px);
+    }
+
     /* ===== SLIDE BACKGROUNDS ===== */
     .slide::before {
       content: '';
@@ -311,10 +316,25 @@
       border-radius: 16px;
       min-width: 100px;
       transition: all 0.3s ease;
+      cursor: pointer;
+      appearance: none;
+      color: inherit;
+      font: inherit;
     }
 
     .arch-node:hover {
       transform: scale(1.05);
+    }
+
+    .arch-node:focus-visible {
+      outline: 2px solid var(--cyan);
+      outline-offset: 3px;
+    }
+
+    .arch-node.is-active {
+      border-color: rgba(34,211,238,0.5);
+      box-shadow: 0 0 22px rgba(34,211,238,0.12);
+      transform: scale(1.06);
     }
 
     .arch-node .icon {
@@ -361,6 +381,73 @@
       font-size: 1.3rem;
       color: var(--text-muted);
       animation: arrowPulse 2s ease infinite;
+    }
+
+    /* ===== COMPONENT EXPLORER ===== */
+    .component-panel {
+      margin-top: 26px;
+      width: 100%;
+      max-width: 920px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 18px 22px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .component-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .component-title {
+      font-size: 1.1rem;
+      font-weight: 800;
+    }
+
+    .component-tags {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .component-summary {
+      font-size: 0.9rem;
+      color: var(--text-dim);
+      line-height: 1.6;
+    }
+
+    .component-bullets {
+      list-style: none;
+      display: grid;
+      gap: 8px;
+    }
+
+    .component-bullets li {
+      display: flex;
+      gap: 10px;
+      font-size: 0.85rem;
+      color: var(--text-dim);
+      line-height: 1.5;
+    }
+
+    .component-bullets .dot {
+      width: 6px;
+      height: 6px;
+      margin-top: 7px;
+      border-radius: 50%;
+      background: var(--cyan);
+      box-shadow: 0 0 8px rgba(34,211,238,0.4);
+      flex-shrink: 0;
+    }
+
+    .component-hint {
+      font-size: 0.75rem;
+      color: var(--text-muted);
     }
 
     /* ===== TIMELINE ===== */
@@ -923,7 +1010,7 @@
 
   <!-- ===== SLIDE 0: TITLE ===== -->
   <div class="slide active bg-glow-blue bg-grid" data-slide="0">
-    <span class="slide-number">00 / 13</span>
+    <span class="slide-number">00 / 10</span>
     <div class="title-badge"><span class="dot"></span> Telecom Networks</div>
     <div class="title-big">
       <span class="grad-multi">LTE Network</span><br>Architecture
@@ -938,7 +1025,7 @@
 
   <!-- ===== SLIDE 1: WHAT IS LTE ===== -->
   <div class="slide bg-glow-cyan" data-slide="1">
-    <span class="slide-number">01 / 13</span>
+    <span class="slide-number">01 / 10</span>
     <p class="kicker cyan">Introduction</p>
     <h1>What is <span class="grad-cyan">LTE</span>?</h1>
     <p class="subtitle">Long Term Evolution — the standard for high-speed wireless communication for mobile devices.</p>
@@ -977,7 +1064,7 @@
 
   <!-- ===== SLIDE 2: LTE vs Older Generations ===== -->
   <div class="slide bg-glow-purple" data-slide="2">
-    <span class="slide-number">02 / 13</span>
+    <span class="slide-number">02 / 10</span>
     <p class="kicker purple">Context</p>
     <h1>Evolution of <span class="grad-purple">Mobile Networks</span></h1>
     <p class="subtitle">Each generation brought massive improvements in speed, capacity, and architecture.</p>
@@ -1001,7 +1088,7 @@
 
   <!-- ===== SLIDE 3: LTE ARCHITECTURE OVERVIEW ===== -->
   <div class="slide bg-glow-blue bg-grid" data-slide="3">
-    <span class="slide-number">03 / 13</span>
+    <span class="slide-number">03 / 10</span>
     <p class="kicker blue">Architecture</p>
     <h1>LTE Network <span class="grad-blue">Components</span></h1>
     <p class="subtitle">The LTE network is split into three domains, each handling a specific part of the communication chain.</p>
@@ -1010,162 +1097,71 @@
       <div class="card blue-card appear-item" style="text-align:center;">
         <div class="card-icon bg-blue" style="margin:0 auto 12px;">📱</div>
         <h3>User Equipment (UE)</h3>
-        <p>Your phone or device.<br>Contains SIM (USIM) with subscriber identity.</p>
+        <p>Your phone, tablet, or modem.<br>Holds the SIM that proves who you are.</p>
         <span class="tag blue">End User</span>
       </div>
       <div class="card cyan-card appear-item" style="text-align:center;">
         <div class="card-icon bg-cyan" style="margin:0 auto 12px;">📡</div>
         <h3>E-UTRAN (Radio)</h3>
-        <p>The radio access network. Made of eNodeB base stations providing wireless coverage.</p>
+        <p>The radio network. eNodeB towers give you signal and connect you to LTE.</p>
         <span class="tag cyan">Access Network</span>
       </div>
       <div class="card purple-card appear-item" style="text-align:center;">
         <div class="card-icon bg-purple" style="margin:0 auto 12px;">🧠</div>
         <h3>EPC (Core)</h3>
-        <p>Evolved Packet Core. Manages security, sessions, mobility, and internet connectivity.</p>
+        <p>The core network. It checks your SIM, starts a session, and links you to the internet.</p>
         <span class="tag purple">Core Network</span>
       </div>
     </div>
 
     <div class="arch-diagram appear-item">
-      <div class="arch-node blue"><span class="icon">📱</span><span class="label">UE</span></div>
+      <button class="arch-node blue component-trigger" data-component="ue" type="button">
+        <span class="icon">📱</span><span class="label">UE</span>
+      </button>
       <span class="arch-arrow">→</span>
-      <div class="arch-node cyan"><span class="icon">📡</span><span class="label">eNodeB</span></div>
+      <button class="arch-node cyan component-trigger" data-component="enodeb" type="button">
+        <span class="icon">📡</span><span class="label">eNodeB</span>
+      </button>
       <span class="arch-arrow">→</span>
       <div class="arch-branch">
         <div style="display:flex;align-items:center;gap:12px;">
-          <div class="arch-node purple"><span class="icon">🧠</span><span class="label">MME</span></div>
+          <button class="arch-node purple component-trigger" data-component="mme" type="button">
+            <span class="icon">🧠</span><span class="label">MME</span>
+          </button>
           <span class="arch-arrow">↔</span>
-          <div class="arch-node amber"><span class="icon">🗄️</span><span class="label">HSS</span></div>
+          <button class="arch-node amber component-trigger" data-component="hss" type="button">
+            <span class="icon">🗄️</span><span class="label">HSS</span>
+          </button>
         </div>
         <span class="arch-arrow-down">↕</span>
         <div style="display:flex;align-items:center;gap:12px;">
-          <div class="arch-node green"><span class="icon">🔀</span><span class="label">SGW</span></div>
+          <button class="arch-node green component-trigger" data-component="sgw" type="button">
+            <span class="icon">🔀</span><span class="label">SGW</span>
+          </button>
           <span class="arch-arrow">→</span>
-          <div class="arch-node red"><span class="icon">🌐</span><span class="label">PGW</span></div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ===== SLIDE 4: UE & eNodeB ===== -->
-  <div class="slide bg-glow-cyan" data-slide="4">
-    <span class="slide-number">04 / 13</span>
-    <p class="kicker cyan">Components — Part 1</p>
-    <h1><span class="grad-cyan">UE</span> & <span class="grad-blue">eNodeB</span></h1>
-
-    <div class="two-col">
-      <div class="col">
-        <div class="card cyan-card appear-item">
-          <div class="card-icon bg-cyan">📱</div>
-          <h3>UE — User Equipment</h3>
-          <p>The device the user holds — a phone, tablet, or IoT module. It contains:</p>
-          <ul style="margin-top:12px;">
-            <li><span class="bullet" style="color:var(--cyan)">◆</span> <strong>USIM</strong> — stores the subscriber identity (IMSI) and authentication keys</li>
-            <li><span class="bullet" style="color:var(--cyan)">◆</span> <strong>IMEI</strong> — unique device hardware identifier</li>
-            <li><span class="bullet" style="color:var(--cyan)">◆</span> <strong>Radio transceiver</strong> — communicates with cell towers on LTE frequencies</li>
-          </ul>
-          <span class="tag cyan">Client Side</span>
-        </div>
-      </div>
-      <div class="col">
-        <div class="card blue-card appear-item">
-          <div class="card-icon bg-blue">📡</div>
-          <h3>eNodeB — Evolved Node B</h3>
-          <p>The LTE cell tower (base station). Responsibilities:</p>
-          <ul style="margin-top:12px;">
-            <li><span class="bullet" style="color:var(--blue)">◆</span> <strong>Radio Resource Management</strong> — allocates bandwidth to users</li>
-            <li><span class="bullet" style="color:var(--blue)">◆</span> <strong>S1 Interface</strong> — connects to the core network (MME + SGW)</li>
-            <li><span class="bullet" style="color:var(--blue)">◆</span> <strong>X2 Interface</strong> — connects to neighboring eNodeBs for handover</li>
-          </ul>
-          <span class="tag blue">Access Network</span>
+          <button class="arch-node red component-trigger" data-component="pgw" type="button">
+            <span class="icon">🌐</span><span class="label">PGW</span>
+          </button>
         </div>
       </div>
     </div>
 
-    <p class="small-note appear-item">💡 <strong>Key concept:</strong> IMSI (International Mobile Subscriber Identity) is like a phone's passport — it uniquely identifies you to the network worldwide.</p>
-  </div>
-
-  <!-- ===== SLIDE 5: MME & HSS ===== -->
-  <div class="slide bg-glow-purple" data-slide="5">
-    <span class="slide-number">05 / 13</span>
-    <p class="kicker purple">Components — Part 2</p>
-    <h1><span class="grad-purple">MME</span> & <span class="grad-amber">HSS</span></h1>
-
-    <div class="two-col">
-      <div class="col">
-        <div class="card purple-card appear-item">
-          <div class="card-icon bg-purple">🧠</div>
-          <h3>MME — Mobility Management Entity</h3>
-          <p>The "brain" of the LTE core. It handles all control-plane signaling:</p>
-          <ul style="margin-top:12px;">
-            <li><span class="bullet" style="color:var(--purple)">◆</span> <strong>Authentication</strong> — verifies subscriber identity via HSS</li>
-            <li><span class="bullet" style="color:var(--purple)">◆</span> <strong>NAS Security</strong> — encrypts and protects signaling messages</li>
-            <li><span class="bullet" style="color:var(--purple)">◆</span> <strong>Session Management</strong> — creates/deletes bearers</li>
-            <li><span class="bullet" style="color:var(--purple)">◆</span> <strong>Mobility</strong> — tracks which tower you're connected to</li>
-          </ul>
-          <span class="tag purple">Control Plane</span>
-        </div>
+    <div class="component-panel appear-item" id="componentPanel">
+      <div class="component-header">
+        <div class="component-title" id="componentTitle">eNodeB — Evolved Node B</div>
+        <div class="component-tags" id="componentTags"></div>
       </div>
-      <div class="col">
-        <div class="card amber-card appear-item">
-          <div class="card-icon bg-amber">🗄️</div>
-          <h3>HSS — Home Subscriber Server</h3>
-          <p>The central database that stores every subscriber's information:</p>
-          <ul style="margin-top:12px;">
-            <li><span class="bullet" style="color:var(--amber)">◆</span> <strong>Subscriber profile</strong> — QoS, APN, allowed services</li>
-            <li><span class="bullet" style="color:var(--amber)">◆</span> <strong>Authentication keys</strong> — used for EPS-AKA challenge</li>
-            <li><span class="bullet" style="color:var(--amber)">◆</span> <strong>Location info</strong> — which MME is serving each subscriber</li>
-          </ul>
-          <span class="tag amber">Subscriber Database</span>
-        </div>
-      </div>
+      <p class="component-summary" id="componentSummary">
+        The LTE tower that gives you signal and links your device to the core network.
+      </p>
+      <ul class="component-bullets" id="componentBullets"></ul>
+      <div class="component-hint">Tip: click a node above to see simple talking points.</div>
     </div>
-
-    <p class="small-note appear-item">💡 <strong>Analogy:</strong> The MME is like airport security — checking your passport (IMSI) against the database (HSS) before letting you through.</p>
   </div>
 
-  <!-- ===== SLIDE 6: SGW & PGW ===== -->
-  <div class="slide bg-glow-green" data-slide="6">
-    <span class="slide-number">06 / 13</span>
-    <p class="kicker green">Components — Part 3</p>
-    <h1><span class="grad-green">SGW</span> & <span class="grad-red">PGW</span></h1>
-
-    <div class="two-col">
-      <div class="col">
-        <div class="card green-card appear-item">
-          <div class="card-icon bg-green">🔀</div>
-          <h3>SGW — Serving Gateway</h3>
-          <p>Routes user data packets between eNodeB and the core:</p>
-          <ul style="margin-top:12px;">
-            <li><span class="bullet" style="color:var(--green)">◆</span> <strong>Data routing</strong> — forwards data to/from the eNodeB</li>
-            <li><span class="bullet" style="color:var(--green)">◆</span> <strong>Anchor point</strong> — during handovers, keeps data flowing</li>
-            <li><span class="bullet" style="color:var(--green)">◆</span> <strong>Buffering</strong> — stores packets when UE is in idle mode</li>
-          </ul>
-          <span class="tag green">User Plane</span>
-        </div>
-      </div>
-      <div class="col">
-        <div class="card red-card appear-item">
-          <div class="card-icon bg-red">🌐</div>
-          <h3>PGW — Packet Data Network Gateway</h3>
-          <p>The gateway to the internet and external services:</p>
-          <ul style="margin-top:12px;">
-            <li><span class="bullet" style="color:var(--red)">◆</span> <strong>IP allocation</strong> — assigns your device an IP address</li>
-            <li><span class="bullet" style="color:var(--red)">◆</span> <strong>Policy enforcement</strong> — applies QoS, billing rules</li>
-            <li><span class="bullet" style="color:var(--red)">◆</span> <strong>Internet access</strong> — connects you to the outside world</li>
-          </ul>
-          <span class="tag red">Internet Gateway</span>
-        </div>
-      </div>
-    </div>
-
-    <p class="small-note appear-item">💡 <strong>Analogy:</strong> SGW = highway interchange (routes traffic locally). PGW = border crossing (gives you access to the internet).</p>
-  </div>
-
-  <!-- ===== SLIDE 7: ATTACH OVERVIEW ===== -->
-  <div class="slide bg-glow-blue bg-grid" data-slide="7">
-    <span class="slide-number">07 / 13</span>
+  <!-- ===== SLIDE 4: ATTACH OVERVIEW ===== -->
+  <div class="slide bg-glow-blue bg-grid" data-slide="4">
+    <span class="slide-number">04 / 10</span>
     <p class="kicker blue">Core Process</p>
     <h1>The <span class="grad-blue">Attach Procedure</span></h1>
     <p class="subtitle">When you power on your phone, this exact sequence happens before you get internet access. It takes less than 2 seconds in real life.</p>
@@ -1186,9 +1182,9 @@
     </div>
   </div>
 
-  <!-- ===== SLIDE 8: ATTACH STEPS 1-5 ===== -->
-  <div class="slide bg-glow-cyan" data-slide="8">
-    <span class="slide-number">08 / 13</span>
+  <!-- ===== SLIDE 5: ATTACH STEPS 1-5 ===== -->
+  <div class="slide bg-glow-cyan" data-slide="5">
+    <span class="slide-number">05 / 10</span>
     <p class="kicker cyan">Attach Procedure — Phase 1</p>
     <h2>Steps 1–5: <span style="color:var(--cyan)">Discovery & Authentication</span></h2>
 
@@ -1235,9 +1231,9 @@
     </div>
   </div>
 
-  <!-- ===== SLIDE 9: ATTACH STEPS 6-10 ===== -->
-  <div class="slide bg-glow-green" data-slide="9">
-    <span class="slide-number">09 / 13</span>
+  <!-- ===== SLIDE 6: ATTACH STEPS 6-10 ===== -->
+  <div class="slide bg-glow-green" data-slide="6">
+    <span class="slide-number">06 / 10</span>
     <p class="kicker green">Attach Procedure — Phase 2</p>
     <h2>Steps 6–10: <span style="color:var(--green)">Security & Session</span></h2>
 
@@ -1285,9 +1281,9 @@
     </div>
   </div>
 
-  <!-- ===== SLIDE 10: AUTHENTICATION DEEP DIVE ===== -->
-  <div class="slide bg-glow-amber" data-slide="10">
-    <span class="slide-number">10 / 13</span>
+  <!-- ===== SLIDE 7: AUTHENTICATION DEEP DIVE ===== -->
+  <div class="slide bg-glow-amber" data-slide="7">
+    <span class="slide-number">07 / 10</span>
     <p class="kicker amber">Security</p>
     <h1><span class="grad-amber">EPS-AKA</span> Authentication</h1>
     <p class="subtitle">Evolved Packet System — Authentication and Key Agreement. The mutual authentication protocol that protects LTE networks.</p>
@@ -1346,9 +1342,9 @@
     </div>
   </div>
 
-  <!-- ===== SLIDE 11: HANDOVER & MOBILITY ===== -->
-  <div class="slide bg-glow-green" data-slide="11">
-    <span class="slide-number">11 / 13</span>
+  <!-- ===== SLIDE 8: HANDOVER & MOBILITY ===== -->
+  <div class="slide bg-glow-green" data-slide="8">
+    <span class="slide-number">08 / 10</span>
     <p class="kicker green">Mobility</p>
     <h1>Cell <span class="grad-green">Handover</span></h1>
     <p class="subtitle">When you move from one tower's coverage to another, the network seamlessly transfers your connection — without dropping the call or session.</p>
@@ -1395,9 +1391,9 @@
     </div>
   </div>
 
-  <!-- ===== SLIDE 12: FAILURE SCENARIOS ===== -->
-  <div class="slide bg-glow-amber" data-slide="12">
-    <span class="slide-number">12 / 13</span>
+  <!-- ===== SLIDE 9: FAILURE SCENARIOS ===== -->
+  <div class="slide bg-glow-amber" data-slide="9">
+    <span class="slide-number">09 / 10</span>
     <p class="kicker red">Error Handling</p>
     <h1>Failure <span class="grad-red">Scenarios</span></h1>
     <p class="subtitle">Not every attach attempt succeeds. The LTE network handles errors gracefully with specific rejection causes.</p>
@@ -1439,9 +1435,9 @@
     </div>
   </div>
 
-  <!-- ===== SLIDE 13: LIVE DEMO / CONCLUSION ===== -->
-  <div class="slide bg-glow-blue bg-grid" data-slide="13">
-    <span class="slide-number">13 / 13</span>
+  <!-- ===== SLIDE 10: LIVE DEMO / CONCLUSION ===== -->
+  <div class="slide bg-glow-blue bg-grid" data-slide="10">
+    <span class="slide-number">10 / 10</span>
     <p class="kicker pink">Conclusion</p>
     <div class="title-big" style="font-size:3.5rem;">
       <span class="grad-multi">Live Demo</span> Time
@@ -1493,7 +1489,7 @@
   </div>
   <div class="nav-center">
     <button class="nav-btn" id="btnPrev" title="Previous Slide">←</button>
-    <span class="nav-page" id="navPage">1 / 14</span>
+    <span class="nav-page" id="navPage">1 / 11</span>
     <button class="nav-btn" id="btnNext" title="Next Slide">→</button>
   </div>
   <div class="nav-right" id="navDots"></div>
@@ -1515,6 +1511,12 @@
   const btnPrev = document.getElementById('btnPrev');
   const btnNext = document.getElementById('btnNext');
 
+  const componentButtons = document.querySelectorAll('.component-trigger');
+  const componentTitle = document.getElementById('componentTitle');
+  const componentSummary = document.getElementById('componentSummary');
+  const componentBullets = document.getElementById('componentBullets');
+  const componentTags = document.getElementById('componentTags');
+
   // Create dots
   for (let i = 0; i < total; i++) {
     const dot = document.createElement('div');
@@ -1528,15 +1530,19 @@
 
     const prev = slides[current];
     const next = slides[index];
+    const isForward = index > current;
 
     prev.classList.remove('active');
-    prev.classList.add(index > current ? 'exit-left' : '');
-    setTimeout(() => prev.classList.remove('exit-left'), 500);
+    prev.classList.remove('exit-left', 'exit-right');
+    prev.classList.add(isForward ? 'exit-left' : 'exit-right');
 
+    next.classList.remove('exit-left', 'exit-right');
     next.classList.add('active');
     current = index;
 
     updateNav();
+
+    setTimeout(() => prev.classList.remove('exit-left', 'exit-right'), 500);
   }
 
   function updateNav() {
@@ -1560,6 +1566,101 @@
   });
 
   updateNav();
+
+  if (componentButtons.length && componentTitle && componentSummary && componentBullets && componentTags) {
+    const componentData = {
+      ue: {
+        title: 'UE — User Equipment',
+        summary: 'Your phone or device that connects to the LTE network. It holds the SIM and talks to the nearest tower.',
+        bullets: [
+          'SIM holds your IMSI (subscriber ID)',
+          'Talks to the tower over radio',
+          'Starts the attach process',
+          'Gets an IP address after attach'
+        ],
+        tags: [{ label: 'Your Device', color: 'cyan' }]
+      },
+      enodeb: {
+        title: 'eNodeB — Evolved Node B',
+        summary: 'The LTE tower that gives signal and connects you to the core network. It is the first network point your phone talks to.',
+        bullets: [
+          'Covers a cell area',
+          'Relays messages between phone and core',
+          'Helps with handover to other towers',
+          'Shares radio resources between users'
+        ],
+        tags: [{ label: 'Radio Access', color: 'blue' }]
+      },
+      mme: {
+        title: 'MME — Mobility Management Entity',
+        summary: 'The control brain that checks your SIM and manages your session. It decides if you can join the network.',
+        bullets: [
+          'Authenticates the subscriber',
+          'Tracks which tower you are on',
+          'Starts and ends sessions',
+          'Triggers security setup'
+        ],
+        tags: [{ label: 'Control Plane', color: 'purple' }]
+      },
+      hss: {
+        title: 'HSS — Home Subscriber Server',
+        summary: 'The database that stores subscriber information. It answers the MME with the right security data.',
+        bullets: [
+          'Keeps IMSI and secret keys',
+          'Sends auth info to the MME',
+          'Stores service profile',
+          'Keeps basic subscriber status'
+        ],
+        tags: [{ label: 'Subscriber DB', color: 'amber' }]
+      },
+      sgw: {
+        title: 'SGW — Serving Gateway',
+        summary: 'A traffic router between the tower and the internet gateway. It keeps data flowing as you move.',
+        bullets: [
+          'Forwards user data',
+          'Keeps traffic flowing during handover',
+          'Acts as a local anchor point',
+          'Handles user data paths'
+        ],
+        tags: [{ label: 'User Data', color: 'green' }]
+      },
+      pgw: {
+        title: 'PGW — Packet Data Network Gateway',
+        summary: 'The gateway to the internet and external services. It is where your LTE data meets the outside world.',
+        bullets: [
+          'Gives the device an IP address',
+          'Applies basic rules and limits',
+          'Connects to the public internet',
+          'Links to apps and services'
+        ],
+        tags: [{ label: 'Internet Gateway', color: 'red' }]
+      }
+    };
+
+    const setComponent = (key) => {
+      const data = componentData[key];
+      if (!data) return;
+
+      componentTitle.textContent = data.title;
+      componentSummary.textContent = data.summary;
+      componentBullets.innerHTML = data.bullets
+        .map((item) => `<li><span class="dot"></span><span>${item}</span></li>`)
+        .join('');
+      componentTags.innerHTML = data.tags
+        .map((tag) => `<span class="tag ${tag.color}">${tag.label}</span>`)
+        .join('');
+
+      componentButtons.forEach((btn) => {
+        btn.classList.toggle('is-active', btn.dataset.component === key);
+      });
+    };
+
+    componentButtons.forEach((btn) => {
+      btn.addEventListener('click', () => setComponent(btn.dataset.component));
+    });
+
+    setComponent('enodeb');
+  }
 })();
 </script>
 
